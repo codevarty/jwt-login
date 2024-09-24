@@ -1,4 +1,4 @@
-package test.jwttest.domain.global;
+package test.jwttest.global;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

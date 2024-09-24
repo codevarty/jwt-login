@@ -1,4 +1,4 @@
-package test.jwttest.domain.global;
+package test.jwttest.global;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
