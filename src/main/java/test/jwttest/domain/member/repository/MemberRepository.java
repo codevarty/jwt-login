@@ -6,4 +6,6 @@ import test.jwttest.domain.member.entity.Member;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Boolean existsByUsername(String username);
+
+    Member findByUsername(String username);
 }
