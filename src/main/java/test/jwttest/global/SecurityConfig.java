@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -12,6 +13,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import test.jwttest.domain.auth.custom_user.CustomUserDetailService;
+import test.jwttest.domain.auth.jwt.JwtProvider;
 import test.jwttest.domain.auth.jwt.LoginFilter;
 
 @Configuration
@@ -19,6 +22,7 @@ import test.jwttest.domain.auth.jwt.LoginFilter;
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final JwtProvider jwtProvider;
 
     // 사용자 비밀번호를 캐쉬로 암호화 시키기 위해 사용한다.
     @Bean
@@ -63,7 +67,7 @@ public class SecurityConfig {
 
         // filter 추가
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration))
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtProvider)
                         , UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

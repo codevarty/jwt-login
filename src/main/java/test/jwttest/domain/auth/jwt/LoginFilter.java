@@ -9,15 +9,22 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import test.jwttest.domain.auth.custom_user.CustomUserDetails;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
 
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    public LoginFilter(AuthenticationManager authenticationManager) {
+    private final JwtProvider jwtProvider;
+
+    public LoginFilter(AuthenticationManager authenticationManager, JwtProvider jwtProvider) {
         super(authenticationManager); // 부모 클래스 생성자에 전달한다.
+        this.jwtProvider = jwtProvider;
     }
 
     @Override
@@ -41,7 +48,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        log.info("success");
+        CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
+        String username = customUserDetails.getUsername();
+
+        Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority auth = iterator.next();
+
+        String role = auth.getAuthority();
+
+        String accessToken = jwtProvider.generateAccessToken(username, role);
+        String refreshToken = jwtProvider.generateRefreshToken();
+
+        response.addHeader("Authorization", "Bearer " + accessToken);
+        response.addHeader("Authorization", "Bearer " + refreshToken);
     }
 
     /**
@@ -49,6 +69,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        log.info("failed");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }
