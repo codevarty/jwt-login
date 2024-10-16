@@ -21,13 +21,7 @@ spring:
       path: /h2-console
 
 
+# JWT Properties
 jwt:
+  issuer: test@example.com # 발급자.
   secret: 637886958f19dbd73857497d39435d5d8c958fe72c79e4fb1ba83821d35cc214ef8d0b2750d841d32de624a0eb58a1ec09dacac1a8464eb0609637ef2394575fd56595f847c6d9c3bce0d62e9c1d30d3068d8d2714e361c7ece25dcb85c583909881f9d2dc034cac1b600f492783a45fc8c7e735cf9a3523c1019d61a32c815a83f1d5a5bb2398d9cf82e3cb6ad22e13d58f09ea854742e64ab9eeaa06c403ce3b3e3080fe6a92e5cce79846882ebcda8d208911b4a81bf2445b267d8f30839ec57e0a8922eddfd41a1317684323a1bb5921e4d9ce3f3507be99408faf0af34a0213cf957d081bb8847ee2947f2f1e294594b1cdb5902ae22a51741cac2b4e12
-
-  access:
-    expiration: 86400000        # 1 day
-    header: Authorization
-
-  refresh:
-    expiration: 604800000       # 7 day
-    header: Authorization-refresh
