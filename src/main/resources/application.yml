@@ -2,6 +2,12 @@ spring:
   application:
     name: jwt-test
 
+  # Redis setting
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   # H2 data base setting
   datasource:
     url: jdbc:h2:mem:testdb

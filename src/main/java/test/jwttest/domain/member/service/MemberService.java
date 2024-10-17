@@ -31,4 +31,9 @@ public class MemberService {
 
         return memberRepository.save(member).getId();
     }
+
+    public Member findByUserId(Long userId) {
+        return memberRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Unexpected User"));
+    }
 }
