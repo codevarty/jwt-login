@@ -17,16 +17,13 @@ public class MemberService {
         String username = joinDTO.getUsername();
         String password = joinDTO.getPassword();
 
-        Boolean isExist = memberRepository.existsByUsername(username);
-
-        if (isExist) {
-            return null;
-        }
+        memberRepository.existsByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("exist already username"));
 
         Member member = new Member().builder()
                 .username(username)
                 .password(bCryptPasswordEncoder.encode(password))
-                .role("ROLE_ADMIN")
+                .role("ROLE_USER")
                 .build();
 
         return memberRepository.save(member).getId();

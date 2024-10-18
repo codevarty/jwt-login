@@ -36,7 +36,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/h2-console/**").permitAll() // h2 console 접근을 위해 허용
-                .requestMatchers("/", "/login", "/join").permitAll()
+                .requestMatchers("/api", "/login", "/join").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")// Admin 경우에만 접근이 허용이 된다.
                 .anyRequest().authenticated());
 

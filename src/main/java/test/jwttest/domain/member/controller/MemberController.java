@@ -1,6 +1,8 @@
 package test.jwttest.domain.member.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,13 +15,13 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/join")
-    public String join(@RequestBody JoinDTO joinDTO) {
-        Long joined = memberService.join(joinDTO);
+    public ResponseEntity<String> join(@RequestBody JoinDTO joinDTO) {
+        try {
+            memberService.join(joinDTO);
+            return ResponseEntity.status(HttpStatus.OK).body("ok");
 
-        if (joined != null) {
-            return "ok";
+        } catch(Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-
-        return "username already exists";
     }
 }
