@@ -20,8 +20,8 @@ public class MemberController {
             memberService.join(joinDTO);
             return ResponseEntity.status(HttpStatus.OK).body("ok");
 
-        } catch(Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }
