@@ -40,14 +40,14 @@ class JwtProviderTest {
         String token = jwtProvider.generateToken(member, Duration.ofDays(14));
 
         //then
-        String username = Jwts.parser()
+        Long userId = Jwts.parser()
                 .verifyWith(jwtProperties.getSecretKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
-                .get("username", String.class);
+                .get("id", Long.class);
 
-        assertThat(username).isEqualTo(member.getUsername());
+        assertThat(userId).isEqualTo(member.getId());
     }
 
     @DisplayName("validToken(): 만료된 토큰인 떄에 유효성 검증에 실패한다.")
@@ -85,20 +85,20 @@ class JwtProviderTest {
 
     }
 
-    @DisplayName("getUsername(): 토큰으로 유저네임을 가져 올 수 있다.")
+    @DisplayName("getUsername(): 토큰으로 유저아이디를 가져 올 수 있다.")
     @Test
     void getUsername() {
         //given
-        String username = "test3";
+        Long userId = 1L;
         String token = JwtFactory.builder()
-                .claims(Map.of("username", username))
+                .claims(Map.of("id", userId))
                 .build()
                 .createToken(jwtProperties);
 
         // when
-        String usernameByToken = jwtProvider.getUsername(token);
+        Long userIdByToken = jwtProvider.getUserId(token);
 
         //then
-        assertThat(usernameByToken).isEqualTo(username);
+        assertThat(userIdByToken).isEqualTo(userId);
     }
 }

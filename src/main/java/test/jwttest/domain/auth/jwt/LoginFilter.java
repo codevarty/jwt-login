@@ -12,16 +12,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import test.jwttest.domain.auth.custom_user.CustomUserDetails;
+import test.jwttest.domain.auth.token.service.TokenService;
 import test.jwttest.domain.member.entity.Member;
 
 import java.io.IOException;
-import java.time.Duration;
 
 @Slf4j
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider;
+    private final TokenService tokenService;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -46,9 +46,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
         Member member = userDetails.getMember();
 
-        String accessToken = jwtProvider.generateToken(member, Duration.ofHours(2));
+        // accessToken refreshToken 생성
+        String accessToken = tokenService.generateAccessToken(member);
+        String refreshToken = tokenService.generateRefreshToken(member);
 
         response.addHeader("Authorization", "Bearer " + accessToken);
+        response.addHeader("Authorization-refresh", "Bearer " + refreshToken);
     }
 
     /**

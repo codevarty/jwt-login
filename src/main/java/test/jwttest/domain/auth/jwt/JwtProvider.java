@@ -21,99 +21,111 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class JwtProvider {
-  private final JwtProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
-  /**
-   * 토큰 생성 메소드
-   *
-   * @param member    멤버 클래스
-   * @param expiredAt 만료기간
-   * @return Jwt token
-   */
-  public String generateToken(Member member, Duration expiredAt) {
-    Date now = new Date();
+    /**
+     * 토큰 생성 메소드
+     *
+     * @param member    멤버 클래스
+     * @param expiredAt 만료기간
+     * @return Jwt token
+     */
+    public String generateToken(Member member, Duration expiredAt) {
+        Date now = new Date();
 
-    return makeToken(new Date(now.getTime() + expiredAt.toMillis()), member);
-  }
-
-  /**
-   * 내부 토큰 생성 메소드
-   *
-   * @param expiry 만료기간
-   * @param member 멤버 클래스
-   * @return Jwt token
-   */
-  private String makeToken(Date expiry, Member member) {
-    Date now = new Date();
-
-    return Jwts.builder()
-        .header()
-        .add("type", "JWT")
-        .and()
-        .issuer(jwtProperties.getIssuer())
-        .issuedAt(now) // 발급일자 : 현재 시간
-        .expiration(expiry) // 만료 기간
-        .subject("Authentication")
-        .claim("username", member.getUsername())
-        .signWith(jwtProperties.getSecretKey())
-        .compact();
-  }
-
-  /**
-   * Jwt 검증 메소드
-   *
-   * @param token 문자열 토큰
-   * @return isValidate
-   */
-  public boolean validToken(String token) {
-    try {
-      Jwts.parser()
-          .verifyWith(jwtProperties.getSecretKey())
-          .build()
-          .parseSignedClaims(token);
-
-      return true;
-    } catch (JwtException e) { // 복호화 하는 도중 유효하지 않는 토큰인 경우 false 리턴
-      log.error(e.getMessage());
-      return false;
+        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), member);
     }
-  }
 
-  /**
-   * 토큰 기반으로 인증 정보를 가져오는 메소드
-   *
-   * @param token 문자열 메소드
-   * @return Authentication
-   */
-  public Authentication getAuthentication(String token) {
-    Claims claims = getClaims(token);
-    Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
-    return new UsernamePasswordAuthenticationToken(new User(claims.getSubject(), "", authorities), token, authorities);
-  }
+    /**
+     * 내부 토큰 생성 메소드
+     *
+     * @param expiry 만료기간
+     * @param member 멤버 클래스
+     * @return Jwt token
+     */
+    private String makeToken(Date expiry, Member member) {
+        Date now = new Date();
+
+        return Jwts.builder()
+            .header()
+            .add("type", "JWT")
+            .and()
+            .issuer(jwtProperties.getIssuer())
+            .issuedAt(now) // 발급일자 : 현재 시간
+            .expiration(expiry) // 만료 기간
+            .subject(member.getUsername())
+            .claim("id", member.getId())
+            .signWith(jwtProperties.getSecretKey())
+            .compact();
+    }
+
+    /**
+     * Jwt 검증 메소드
+     *
+     * @param token 문자열 토큰
+     * @return isValidate
+     */
+    public boolean validToken(String token) {
+        try {
+            Jwts.parser()
+                .verifyWith(jwtProperties.getSecretKey())
+                .build()
+                .parseSignedClaims(token);
+
+            return true;
+        } catch (JwtException e) { // 복호화 하는 도중 유효하지 않는 토큰인 경우 false 리턴
+            log.error(e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 토큰 기반으로 인증 정보를 가져오는 메소드
+     *
+     * @param token 문자열 토큰
+     * @return Authentication
+     */
+    public Authentication getAuthentication(String token) {
+        Claims claims = getClaims(token);
+        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+        return new UsernamePasswordAuthenticationToken(new User(claims.getSubject(), "", authorities), token, authorities);
+    }
+
+    /**
+     * 토큰 생존 시간을 반환하는 메소드
+     *
+     * @param token 문자열 토큰
+     * @return 만료시간까지 남은 시간 Live Time
+     */
+    public Long getExpiration(String token) {
+        Claims claims = getClaims(token);
+        Date now = new Date();
+        return claims.getExpiration().getTime() - now.getTime();
+    }
 
 
-  /**
-   * 유저네임 반환
-   *
-   * @param token 문자열 토큰
-   * @return username
-   */
-  public String getUsername(String token) {
-    Claims claims = getClaims(token);
-    return claims.get("username", String.class);
-  }
+    /**
+     * 유저아이디를 반환
+     *
+     * @param token 문자열 토큰
+     * @return userId
+     */
+    public Long getUserId(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("id", Long.class);
+    }
 
-  /**
-   * Claims 반환 메소드
-   *
-   * @param token - 문자열 토큰
-   * @return Claims
-   */
-  public Claims getClaims(String token) {
-    return Jwts.parser()
-        .verifyWith(jwtProperties.getSecretKey())
-        .build()
-        .parseSignedClaims(token)
-        .getPayload();
-  }
+    /**
+     * Claims 반환 메소드
+     *
+     * @param token - 문자열 토큰
+     * @return Claims
+     */
+    public Claims getClaims(String token) {
+        return Jwts.parser()
+            .verifyWith(jwtProperties.getSecretKey())
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+    }
 }

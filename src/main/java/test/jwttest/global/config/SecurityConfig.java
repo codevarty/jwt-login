@@ -12,9 +12,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import test.jwttest.domain.auth.jwt.CustomLogoutHandler;
 import test.jwttest.domain.auth.jwt.JwtAuthorizationFilter;
 import test.jwttest.domain.auth.jwt.JwtProvider;
 import test.jwttest.domain.auth.jwt.LoginFilter;
+import test.jwttest.domain.auth.token.service.TokenService;
 
 @Configuration
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration configuration;
     private final JwtProvider jwtProvider;
+    private final TokenService tokenService;
 
     // 사용자 비밀번호를 캐쉬로 암호화 시키기 위해 사용한다.
     @Bean
@@ -54,6 +57,13 @@ public class SecurityConfig {
                 .requestMatchers("/admin").hasRole("ADMIN")// Admin 경우에만 접근이 허용이 된다.
                 .anyRequest().authenticated());
 
+        // logout handler 등록
+        http.logout(logoutConfig -> logoutConfig
+            .addLogoutHandler(new CustomLogoutHandler(tokenService))
+            .logoutSuccessHandler(new CustomLogoutHandler(tokenService))
+            .logoutUrl("/logout")
+            .permitAll());
+
         // h2-console iframe 을 사용하고 있음.
         // sameOrigin 정책을 허용시켜 iframe 대한 접근 허용
         http.headers(headersConfig -> headersConfig.
@@ -64,7 +74,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // LoginFilter 를 UsernamePasswordAuthenticationFilter 를 대체한다.
-        http.addFilterAt(new LoginFilter(authenticationManager(configuration), jwtProvider), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(configuration), tokenService), UsernamePasswordAuthenticationFilter.class);
 
         // JWT 인증 필터는 LoginFilter 전에 실행된다.
         http.addFilterBefore(new JwtAuthorizationFilter(jwtProvider), LoginFilter.class);
