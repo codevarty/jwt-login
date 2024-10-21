@@ -88,6 +88,20 @@ public class JwtProvider {
     }
 
     /**
+     * 토큰이 현재 레디스에 저장되어 있는지 확인하는 메소드
+     *
+     * @param token 문자열 토큰
+     * @param type 토큰 타입: access token, refresh token
+     * @return isStoredToken
+     */
+    public boolean isStoredToken(String token, Type type) {
+        String username = getUsername(token);
+        String storedToken = redisTemplate.opsForValue().get(type.getValue() + username);
+
+        return storedToken.equals(token);
+    }
+
+    /**
      * 토큰을 블랙리스트에 추가한다.
      *
      * @param token 문자열 토큰
@@ -102,6 +116,16 @@ public class JwtProvider {
         // black list 에 추가된 토큰은 사용이 불가능하다.
         redisTemplate.opsForValue()
                 .set(token, "useless", getExpiration(token), TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 토큰이 블랙리스트에 저장되어 있는지 확인하는 메소드
+     *
+     * @param token 문자열 토큰
+     * @return isStoredToken
+     */
+    public boolean isStoredBlackListToken(String token) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(token));
     }
 
     /**

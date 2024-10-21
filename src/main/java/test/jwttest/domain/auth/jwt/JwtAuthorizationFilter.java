@@ -36,8 +36,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         // 가져온 토큰이 유효한지 확인하고, 유 효한 경우에는 인증 정보 설정
         if (token != null && jwtProvider.validToken(token)) {
-            Authentication authentication = jwtProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // black list에 토큰이 없어야 하며 해당 이름의 유저의 액세스 토큰의 값이 일치해야 한다.
+            if (!jwtProvider.isStoredBlackListToken(token) && jwtProvider.isStoredToken(token, Type.ACCESS_TOKEN)) {
+                Authentication authentication = jwtProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().print("유효하지 않는 토큰입니다.");
+            }
         }
 
         filterChain.doFilter(request, response);
