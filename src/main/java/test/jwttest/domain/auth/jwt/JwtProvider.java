@@ -27,9 +27,6 @@ public class JwtProvider {
     private final JwtProperties jwtProperties;
     private final RedisTemplate<String, String> redisTemplate;
 
-    private static final Long ACCESS_TOKEN_EXPIRATION_TIME = 2 * 60 * 60 * 1000L;
-    private static final Long REFRESH_TOKEN_EXPIRATION_TIME = 14 *24 * 60 * 60 * 1000L;
-
     /**
      * 토큰 생성 메소드
      *
@@ -55,9 +52,9 @@ public class JwtProvider {
         Date expiry;
 
         if (type.equals(Type.ACCESS_TOKEN)) {
-            expiry = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_TIME);
+            expiry = new Date(now.getTime() + jwtProperties.getAccessExpiration());
         } else if (type.equals(Type.REFRESH_TOKEN)) {
-            expiry = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION_TIME);
+            expiry = new Date(now.getTime() + jwtProperties.getRefreshExpiration());
         } else {
             throw new IllegalArgumentException("unsupported type: " + type);
         }

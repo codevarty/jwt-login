@@ -16,6 +16,8 @@ import javax.crypto.SecretKey;
 public class JwtProperties {
   private String issuer;
   private String secret;
+  private Long accessExpiration;
+  private Long refreshExpiration;
 
   /**
    * 인증키 반환 메소드
