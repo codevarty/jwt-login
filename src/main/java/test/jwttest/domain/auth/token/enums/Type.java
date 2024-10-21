@@ -5,8 +5,7 @@ import lombok.Getter;
 @Getter
 public enum Type {
     ACCESS_TOKEN("AT"),
-    REFRESH_TOKEN("RT"),
-    BLACKLIST("BK");
+    REFRESH_TOKEN("RT");
 
     private final String value;
 

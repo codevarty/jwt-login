@@ -12,16 +12,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import test.jwttest.domain.auth.custom_user.CustomUserDetails;
-import test.jwttest.domain.auth.token.service.TokenService;
+import test.jwttest.domain.auth.token.enums.Type;
 import test.jwttest.domain.member.entity.Member;
 
 import java.io.IOException;
+import java.time.Duration;
 
 @Slf4j
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
-    private final TokenService tokenService;
+    private final JwtProvider jwtProvider;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -30,6 +31,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String password = obtainPassword(request);
 
         log.info("username: {}", username);
+
+        // 현재 로그인 중에 있을 때 401 에러를 반환한다.
+        if (jwtProvider.isStoredTokenByUsername(username)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return null;
+        }
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
 
@@ -47,8 +54,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Member member = userDetails.getMember();
 
         // accessToken refreshToken 생성
-        String accessToken = tokenService.generateAccessToken(member);
-        String refreshToken = tokenService.generateRefreshToken(member);
+        String accessToken = jwtProvider.generateToken(member, Type.ACCESS_TOKEN);
+        String refreshToken = jwtProvider.generateToken(member, Type.REFRESH_TOKEN);
 
         response.addHeader("Authorization", "Bearer " + accessToken);
         response.addHeader("Authorization-refresh", "Bearer " + refreshToken);

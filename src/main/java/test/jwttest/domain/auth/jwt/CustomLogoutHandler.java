@@ -7,13 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import test.jwttest.domain.auth.token.service.TokenService;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
 public class CustomLogoutHandler implements LogoutHandler, LogoutSuccessHandler {
-    private final TokenService tokenService;
+    private final JwtProvider jwtProvider;
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
@@ -25,7 +24,7 @@ public class CustomLogoutHandler implements LogoutHandler, LogoutSuccessHandler 
         }
 
         String token = header.replace("Bearer ", "");
-        tokenService.invalidToken(token);
+        jwtProvider.addBlackListToken(token);
     }
 
     @Override
