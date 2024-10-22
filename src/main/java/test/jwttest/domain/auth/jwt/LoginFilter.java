@@ -32,9 +32,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         log.info("username: {}", username);
 
-        // 현재 로그인 중에 있을 때 401 에러를 반환한다.
+        // 중복 로그인 문제로 409 에러 코드를 반환한다.
         if (jwtProvider.isStoredTokenByUsername(username)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_CONFLICT);
             return null;
         }
 

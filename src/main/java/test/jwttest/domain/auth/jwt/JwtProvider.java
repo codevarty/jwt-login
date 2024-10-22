@@ -98,6 +98,10 @@ public class JwtProvider {
         return storedToken.equals(token);
     }
 
+    public void deleteToken(String username, Type type) {
+        redisTemplate.delete(type.getValue() + username);
+    }
+
     /**
      * 토큰을 블랙리스트에 추가한다.
      *
