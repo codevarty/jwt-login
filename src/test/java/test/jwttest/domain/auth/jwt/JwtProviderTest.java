@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import test.jwttest.domain.auth.token.enums.Type;
 import test.jwttest.domain.member.entity.Member;
 import test.jwttest.domain.member.repository.MemberRepository;
 
@@ -37,7 +38,7 @@ class JwtProviderTest {
                 .build());
 
         // when
-        String token = jwtProvider.generateToken(member, Duration.ofDays(14));
+        String token = jwtProvider.generateToken(member, Type.ACCESS_TOKEN);
 
         //then
         Long userId = Jwts.parser()

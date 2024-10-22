@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import test.jwttest.domain.auth.token.enums.Type;
 import test.jwttest.domain.member.entity.Member;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -27,18 +26,6 @@ public class JwtProvider {
     private final JwtProperties jwtProperties;
     private final RedisTemplate<String, String> redisTemplate;
 
-    /**
-     * 토큰 생성 메소드
-     *
-     * @param member    멤버 클래스
-     * @param expiredAt 만료기간
-     * @return Jwt token
-     */
-    public String generateToken(Member member, Duration expiredAt) {
-        Date now = new Date();
-
-        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), member);
-    }
 
     /**
      * 토큰 생성 메소드
