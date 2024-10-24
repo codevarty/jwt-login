@@ -17,20 +17,24 @@ public class MemberService {
         String username = joinDTO.getUsername();
         String password = joinDTO.getPassword();
 
-        memberRepository.existsByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("exist already username"));
+        boolean existUser = memberRepository.existsByUsername(username);
+
+        // 유저가 이미 존재하는 경우 에러를 반환한다.
+        if (existUser) {
+            throw new IllegalArgumentException("Username is already in use");
+        }
 
         Member member = new Member().builder()
-                .username(username)
-                .password(bCryptPasswordEncoder.encode(password))
-                .role("ROLE_USER")
-                .build();
+            .username(username)
+            .password(bCryptPasswordEncoder.encode(password))
+            .role("ROLE_USER")
+            .build();
 
         return memberRepository.save(member).getId();
     }
 
     public Member findByUserId(Long userId) {
         return memberRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Unexpected User"));
+            .orElseThrow(() -> new IllegalArgumentException("Unexpected User"));
     }
 }

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -15,12 +16,12 @@ import org.springframework.web.context.WebApplicationContext;
 import test.jwttest.domain.auth.jwt.JwtFactory;
 import test.jwttest.domain.auth.jwt.JwtProperties;
 import test.jwttest.domain.auth.token.dto.CreateAccessTokenRequest;
-import test.jwttest.domain.auth.token.entity.RefreshToken;
-import test.jwttest.domain.auth.token.repository.RefreshTokenRepository;
+import test.jwttest.domain.auth.token.enums.Type;
 import test.jwttest.domain.member.entity.Member;
 import test.jwttest.domain.member.repository.MemberRepository;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,7 +46,7 @@ class TokenControllerTest {
     MemberRepository memberRepository;
 
     @Autowired
-    RefreshTokenRepository refreshTokenRepository;
+    RedisTemplate<String, String> redisTemplate;
 
     @BeforeEach
     public void mockMvcSetup() {
@@ -71,7 +72,8 @@ class TokenControllerTest {
                 .build()
                 .createToken(jwtProperties);
 
-        refreshTokenRepository.save(new RefreshToken(refreshToken, testMember.getId()));
+        String key = Type.REFRESH_TOKEN.getValue() + testMember.getUsername();
+        redisTemplate.opsForValue().set(key, refreshToken, 3000L, TimeUnit.MILLISECONDS);
 
         CreateAccessTokenRequest request = new CreateAccessTokenRequest();
         request.setRefreshToken(refreshToken);

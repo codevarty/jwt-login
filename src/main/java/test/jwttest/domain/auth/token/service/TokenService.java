@@ -29,7 +29,11 @@ public class TokenService {
             throw new IllegalArgumentException("Unexpected token");
         }
 
-        if (Boolean.FALSE.equals(redisTemplate.hasKey(refreshToken))) {
+        String username = jwtProvider.getUsername(refreshToken);
+
+        String key = Type.REFRESH_TOKEN.getValue() + username;
+
+        if (Boolean.FALSE.equals(redisTemplate.hasKey(key))) {
             throw new IllegalArgumentException("Unexpected token");
         }
 

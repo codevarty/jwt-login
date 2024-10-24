@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import test.jwttest.domain.auth.token.enums.Type;
 
 import java.io.IOException;
 
@@ -24,6 +25,8 @@ public class CustomLogoutHandler implements LogoutHandler, LogoutSuccessHandler 
         }
 
         String token = header.replace("Bearer ", "");
+        String username = jwtProvider.getUsername(token);
+        jwtProvider.deleteToken(username, Type.REFRESH_TOKEN);
         jwtProvider.addBlackListToken(token);
     }
 

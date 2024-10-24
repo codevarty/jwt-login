@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import test.jwttest.domain.auth.token.enums.Type;
 import test.jwttest.domain.member.entity.Member;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -27,18 +26,6 @@ public class JwtProvider {
     private final JwtProperties jwtProperties;
     private final RedisTemplate<String, String> redisTemplate;
 
-    /**
-     * 토큰 생성 메소드
-     *
-     * @param member    멤버 클래스
-     * @param expiredAt 만료기간
-     * @return Jwt token
-     */
-    public String generateToken(Member member, Duration expiredAt) {
-        Date now = new Date();
-
-        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), member);
-    }
 
     /**
      * 토큰 생성 메소드
@@ -82,6 +69,24 @@ public class JwtProvider {
         String key = Type.ACCESS_TOKEN.getValue() + username;
 
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+
+    /**
+     * 토큰이 현재 레디스에 저장되어 있는지 확인하는 메소드
+     *
+     * @param token 문자열 토큰
+     * @param type 토큰 타입: access token, refresh token
+     * @return isStoredToken
+     */
+    public boolean isStoredToken(String token, Type type) {
+        String username = getUsername(token);
+        String storedToken = redisTemplate.opsForValue().get(type.getValue() + username);
+
+        return storedToken.equals(token);
+    }
+
+    public void deleteToken(String username, Type type) {
+        redisTemplate.delete(type.getValue() + username);
     }
 
     /**
