@@ -71,19 +71,6 @@ public class JwtProvider {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
-    /**
-     * 토큰이 현재 레디스에 저장되어 있는지 확인하는 메소드
-     *
-     * @param token 문자열 토큰
-     * @param type 토큰 타입: access token, refresh token
-     * @return isStoredToken
-     */
-    public boolean isStoredToken(String token, Type type) {
-        String username = getUsername(token);
-        String storedToken = redisTemplate.opsForValue().get(type.getValue() + username);
-
-        return storedToken.equals(token);
-    }
 
     public void deleteToken(String username, Type type) {
         redisTemplate.delete(type.getValue() + username);
