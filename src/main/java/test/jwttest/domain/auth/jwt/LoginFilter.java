@@ -16,7 +16,6 @@ import test.jwttest.domain.auth.token.enums.Type;
 import test.jwttest.domain.member.entity.Member;
 
 import java.io.IOException;
-import java.time.Duration;
 
 @Slf4j
 @RequiredArgsConstructor
